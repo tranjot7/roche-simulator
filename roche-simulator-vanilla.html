@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roche AI-Powered Budget Impact Simulator for Protocol Design</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; background: #fff; color: #333; }
+    h1 { color: #005691; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input, textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+    button { margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: #005691; color: white; border: none; cursor: pointer; }
+    .output { background: #f0f8ff; border-left: 4px solid #005691; padding: 1rem; margin-top: 2rem; }
+    .disclaimer { font-size: 0.8rem; color: #777; margin-top: 1rem; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Roche AI-Powered Budget Impact Simulator for Protocol Design</h1>
+  <div id="form">
+    <label>Patients in Phase I<input type="number" id="patientsPhase1"></label>
+    <label>Patients in Phase II<input type="number" id="patientsPhase2"></label>
+    <label>Patients in Phase III<input type="number" id="patientsPhase3"></label>
+    <label>Number of Countries<input type="number" id="countries"></label>
+    <label>Patient Visits<input type="number" id="visits"></label>
+    <label>Number of Arms<input type="number" id="arms"></label>
+    <label>Primary Endpoints<input type="number" id="endpointsPrimary"></label>
+    <label>Secondary Endpoints<input type="number" id="endpointsSecondary"></label>
+    <label>Inclusion/Exclusion Criteria<textarea id="inclusionCriteria" rows="4"></textarea></label>
+    <button onclick="simulate()">Simulate Budget Impact</button>
+  </div>
+
+  <div id="output" class="output" style="display:none;"></div>
+
+  <script>
+    function simulate() {
+      const getVal = id => parseInt(document.getElementById(id).value) || 0;
+      const getText = id => document.getElementById(id).value || "";
+
+      const p1 = getVal("patientsPhase1");
+      const p2 = getVal("patientsPhase2");
+      const p3 = getVal("patientsPhase3");
+      const countries = getVal("countries");
+      const visits = getVal("visits");
+      const arms = getVal("arms");
+      const ep1 = getVal("endpointsPrimary");
+      const ep2 = getVal("endpointsSecondary");
+      const criteria = getText("inclusionCriteria");
+
+      const totalPatients = p1 + p2 + p3;
+      const costPerPatient = 1200;
+      const patientCost = totalPatients * costPerPatient * visits;
+      const logisticsCost = countries * 5000;
+      const dataCost = (ep1 + ep2) * 3000;
+      const estimatedTotal = patientCost + logisticsCost + dataCost;
+
+      let out = `Based on your inputs:<br>`;
+      out += `• Estimated budget: CHF ${estimatedTotal.toLocaleString()}<br>`;
+      out += `• Timeline risk: Moderate<br><br>`;
+
+      const cpp = estimatedTotal / (totalPatients || 1);
+      out += `<strong>Benchmarked Efficiency Score:</strong><br>`;
+      out += `• Cost per patient: CHF ${Math.round(cpp).toLocaleString()}<br>`;
+      out += cpp > 60000 ? `• ⚠️ High cost per patient — above industry norms<br>` : `• 👍 Within normal range<br>`;
+      const complexity = arms + ep1 + ep2 + visits;
+      out += `• Design complexity score: ${complexity}<br>`;
+      out += `• Rating: ${complexity > 30 ? "High complexity ⚠️" : "Balanced"}<br><br>`;
+
+      const risk = Math.min(95, Math.round(((ep1 + ep2) * 2 + visits + criteria.length / 100) * 0.8));
+      out += `<strong>Amendment Risk Score:</strong><br>`;
+      out += `• Estimated amendment risk: ${risk}%<br>`;
+      out += `• Key drivers: ${ep1 + ep2} endpoints, ${visits} visits, ${criteria.length} characters in criteria<br>`;
+
+      if (arms > 2) {
+        const saved = ((arms - 2) * 500000).toLocaleString();
+        out += `• Insight: Reducing arms to 2 may save ~CHF ${saved}<br>`;
+      }
+      if (visits > 20) {
+        const saved = ((visits - 20) * 300 * totalPatients).toLocaleString();
+        out += `• Insight: Reducing visits to 20 could save ~CHF ${saved}<br>`;
+      }
+
+      out += `<br><em class="disclaimer">⚠️ These insights are AI-generated based on input assumptions, Roche benchmarks, and industry heuristics. Please validate outputs with appropriate clinical, operational, and financial experts before use.</em>`;
+
+      document.getElementById("output").innerHTML = out;
+      document.getElementById("output").style.display = "block";
+    }
+  </script>
+</body>
+</html>
