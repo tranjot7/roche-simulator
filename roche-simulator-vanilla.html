@@ -1,36 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Roche AI-Powered Budget Impact Simulator for Protocol Design</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roche AI-Powered Budget Impact Simulator</title>
   <style>
-    body { font-family: sans-serif; margin: 2rem; background: #fff; color: #333; }
-    h1 { color: #005691; }
-    label { display: block; margin-top: 1rem; font-weight: bold; }
-    input, textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
-    button { margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: #005691; color: white; border: none; cursor: pointer; }
-    .output { background: #f0f8ff; border-left: 4px solid #005691; padding: 1rem; margin-top: 2rem; }
-    .disclaimer { font-size: 0.8rem; color: #777; margin-top: 1rem; font-style: italic; }
+    body { font-family: Arial, sans-serif; margin: 2rem; background: #fff; color: #333; }
+    h1 { color: #005691; text-align: center; margin-bottom: 1rem; }
+    .container { max-width: 1000px; margin: auto; background: #f9f9f9; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .full-width {
+      grid-column: span 2;
+    }
+    label { display: block; font-weight: bold; margin-bottom: 0.3rem; }
+    input, textarea, select {
+      width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;
+    }
+    button {
+      margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: #005691;
+      color: white; border: none; cursor: pointer; border-radius: 4px; grid-column: span 2;
+    }
+    .output {
+      background: #f0f8ff;
+      border-left: 4px solid #005691;
+      padding: 1rem;
+      margin-top: 2rem;
+      white-space: pre-wrap;
+    }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted #555;
+      cursor: help;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 240px;
+      background-color: #333;
+      color: #fff;
+      text-align: left;
+      padding: 6px 8px;
+      border-radius: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
   <h1>Roche AI-Powered Budget Impact Simulator for Protocol Design</h1>
-  <div id="form">
-    <label>Patients in Phase I<input type="number" id="patientsPhase1"></label>
-    <label>Patients in Phase II<input type="number" id="patientsPhase2"></label>
-    <label>Patients in Phase III<input type="number" id="patientsPhase3"></label>
-    <label>Number of Countries<input type="number" id="countries"></label>
-    <label>Patient Visits<input type="number" id="visits"></label>
-    <label>Number of Arms<input type="number" id="arms"></label>
-    <label>Primary Endpoints<input type="number" id="endpointsPrimary"></label>
-    <label>Secondary Endpoints<input type="number" id="endpointsSecondary"></label>
-    <label>Inclusion/Exclusion Criteria<textarea id="inclusionCriteria" rows="4"></textarea></label>
-    <button onclick="simulate()">Simulate Budget Impact</button>
+  <div class="container">
+    <form>
+      <div class="full-width">
+        <label>Trial Area
+          <select id="trialArea">
+            <option value="">Select area</option>
+            <option>Oncology</option>
+            <option>Hematology</option>
+            <option>Neurology</option>
+            <option>Immunology</option>
+            <option>Ophthalmology</option>
+            <option>Cardiovascular, Renal & Metabolism (CVRM)</option>
+            <option>Other</option>
+          </select>
+        </label>
+      </div>
+      <div class="full-width">
+        <label>Trial Size
+          <select id="trialSize">
+            <option value="">Select size</option>
+            <option>Small / Mid-size</option>
+            <option>Large Global Trial</option>
+          </select>
+        </label>
+      </div>
+      <label class="tooltip">Number of Countries
+        <input type="number" id="countries">
+        <span class="tooltiptext">Typical: 3–8 for small, 15–30 for global trials</span>
+      </label>
+      <label class="tooltip">Patients in Phase I
+        <input type="number" id="patientsPhase1">
+        <span class="tooltiptext">Typical range: 20–80</span>
+      </label>
+      <label class="tooltip">Patients in Phase II
+        <input type="number" id="patientsPhase2">
+        <span class="tooltiptext">Typical range: 100–300</span>
+      </label>
+      <label class="tooltip">Patients in Phase III
+        <input type="number" id="patientsPhase3">
+        <span class="tooltiptext">Typical range: 300–1500+</span>
+      </label>
+      <label class="tooltip">Patient Visits
+        <input type="number" id="visits">
+        <span class="tooltiptext">Typical: 6–30</span>
+      </label>
+      <label class="tooltip">Number of Arms
+        <input type="number" id="arms">
+        <span class="tooltiptext">1–8 arms; >5 = high complexity</span>
+      </label>
+      <label class="tooltip">Primary Endpoints
+        <input type="number" id="endpointsPrimary">
+        <span class="tooltiptext">Usually 1–2</span>
+      </label>
+      <label class="tooltip">Secondary Endpoints
+        <input type="number" id="endpointsSecondary">
+        <span class="tooltiptext">Usually 5–15</span>
+      </label>
+      <label class="tooltip full-width">Inclusion/Exclusion Criteria
+        <textarea id="inclusionCriteria" rows="4"></textarea>
+        <span class="tooltiptext">Keep under 1500 characters; avoid overly restrictive filters</span>
+      </label>
+      <button type="button" onclick="simulate()">Simulate Budget Impact</button>
+    </form>
+    <div id="output" class="output" style="display:none; border-radius: 8px; background-color: #e6f2fb; font-size: 0.95rem; line-height: 1.6;">
+  <h2 style="color:#005691; font-size: 1.2rem; margin-bottom: 0.75rem;">AI Recommendations</h2>
+  <pre id="outputText" style="margin:0; padding: 0; background: transparent; border: none;"></pre>
+  <p class="disclaimer">⚠️ These insights are AI-generated based on input assumptions, Roche benchmarks, and industry heuristics. Please validate outputs with appropriate clinical, operational, and financial experts before use.</p>
+</div>
   </div>
-
-  <div id="output" class="output" style="display:none;"></div>
-
   <script>
     function simulate() {
       const getVal = id => parseInt(document.getElementById(id).value) || 0;
@@ -53,36 +151,37 @@
       const dataCost = (ep1 + ep2) * 3000;
       const estimatedTotal = patientCost + logisticsCost + dataCost;
 
-      let out = `Based on your inputs:<br>`;
-      out += `• Estimated budget: CHF ${estimatedTotal.toLocaleString()}<br>`;
-      out += `• Timeline risk: Moderate<br><br>`;
+      let out = `Based on your inputs:\n`;
+      out += `• Estimated budget: CHF ${estimatedTotal.toLocaleString()}\n`;
+      out += `• Timeline risk: Moderate\n\n`;
 
       const cpp = estimatedTotal / (totalPatients || 1);
-      out += `<strong>Benchmarked Efficiency Score:</strong><br>`;
-      out += `• Cost per patient: CHF ${Math.round(cpp).toLocaleString()}<br>`;
-      out += cpp > 60000 ? `• ⚠️ High cost per patient — above industry norms<br>` : `• 👍 Within normal range<br>`;
+      out += `Benchmarked Efficiency Score:\n`;
+      out += `• Cost per patient: CHF ${Math.round(cpp).toLocaleString()}\n`;
+      out += cpp > 60000 ? `• ⚠️ High cost per patient — above industry norms\n` : `• 👍 Within normal range\n`;
       const complexity = arms + ep1 + ep2 + visits;
-      out += `• Design complexity score: ${complexity}<br>`;
-      out += `• Rating: ${complexity > 30 ? "High complexity ⚠️" : "Balanced"}<br><br>`;
+      out += `• Design complexity score: ${complexity}\n`;
+      out += `• Rating: ${complexity > 30 ? "High complexity ⚠️" : "Balanced"}\n\n`;
 
       const risk = Math.min(95, Math.round(((ep1 + ep2) * 2 + visits + criteria.length / 100) * 0.8));
-      out += `<strong>Amendment Risk Score:</strong><br>`;
-      out += `• Estimated amendment risk: ${risk}%<br>`;
-      out += `• Key drivers: ${ep1 + ep2} endpoints, ${visits} visits, ${criteria.length} characters in criteria<br>`;
+      out += `Amendment Risk Score:\n`;
+      out += `• Estimated amendment risk: ${risk}%\n`;
+      out += `• Key drivers: ${ep1 + ep2} endpoints, ${visits} visits, ${criteria.length} characters in criteria\n`;
 
       if (arms > 2) {
         const saved = ((arms - 2) * 500000).toLocaleString();
-        out += `• Insight: Reducing arms to 2 may save ~CHF ${saved}<br>`;
+        out += `• Insight: Reducing arms to 2 may save ~CHF ${saved}\n`;
       }
       if (visits > 20) {
         const saved = ((visits - 20) * 300 * totalPatients).toLocaleString();
-        out += `• Insight: Reducing visits to 20 could save ~CHF ${saved}<br>`;
+        out += `• Insight: Reducing visits to 20 could save ~CHF ${saved}\n`;
       }
 
-      out += `<br><em class="disclaimer">⚠️ These insights are AI-generated based on input assumptions, Roche benchmarks, and industry heuristics. Please validate outputs with appropriate clinical, operational, and financial experts before use.</em>`;
+      out += `\n`;
 
-      document.getElementById("output").innerHTML = out;
-      document.getElementById("output").style.display = "block";
+      const outputDiv = document.getElementById("output");
+      document.getElementById("outputText").innerText = out;
+      outputDiv.style.display = "block";
     }
   </script>
 </body>
